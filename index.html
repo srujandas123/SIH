@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MINEXA – Underground Mine Safety Command Center</title>
+  <meta name="description" content="AI Powered Underground Mine Safety, Monitoring and Rescue System Control Room Dashboard">
+  
+  <!-- Google Fonts: Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Chart.js CDN for standalone execution + npm bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body class="control-room-body">
+  
+  <div id="app" class="dashboard-container">
+    
+    <!-- 1. HEADER SECTION -->
+    <header class="main-header" id="mainHeader">
+      <div class="header-left">
+        <div class="logo-box">
+          <div class="logo-icon-wrap">
+            <i data-lucide="shield-alert" class="logo-icon"></i>
+            <span class="logo-pulse"></span>
+          </div>
+          <div class="brand-titles">
+            <h1 class="brand-name">MINEXA</h1>
+            <span class="brand-sub">AI MINE SAFETY & RESCUE</span>
+          </div>
+        </div>
+        <div class="divider-v"></div>
+        <div class="center-title-group">
+          <h2 class="header-title">Underground Mine Safety Command Center</h2>
+          <div class="location-tag">
+            <i data-lucide="map-pin"></i>
+            <span>Shaft #4 • Subsurface Deep Shaft Facility</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="system-status-pill online" id="sysStatusPill">
+          <span class="status-dot"></span>
+          <span class="status-text">SYSTEM ONLINE</span>
+          <span class="latency-tag">4ms</span>
+        </div>
+
+        <div class="clock-display" id="clockDisplay">
+          <i data-lucide="clock" class="clock-icon"></i>
+          <span id="liveTime" class="mono-font">2026-09-04 09:15:11</span>
+        </div>
+
+        <div class="header-controls">
+          <button id="soundToggleBtn" class="icon-btn" title="Toggle Siren/Sound Effects">
+            <i data-lucide="volume-2" id="soundIcon"></i>
+          </button>
+
+          <button id="simModeBtn" class="sim-btn" title="Simulate Gas Spike Hazard">
+            <i data-lucide="activity"></i>
+            <span>Simulate Hazard</span>
+          </button>
+
+          <button id="emergencyBtn" class="emergency-alert-btn">
+            <i data-lucide="siren" class="btn-siren-icon"></i>
+            <span class="btn-text">EMERGENCY ALERT</span>
+            <span class="btn-glow"></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. OVERALL RISK & SYSTEM TOPOLOGY HERO SECTION -->
+    <section class="hero-risk-section">
+      <!-- Central Mine Safety Risk Score Card -->
+      <div class="risk-card glass-panel" id="riskCard">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <i data-lucide="brain-circuit" class="ai-icon"></i>
+            <h3>Overall Mine Safety Risk Score</h3>
+          </div>
+          <div class="card-badge-wrap">
+            <span class="sub-badge">AI Risk Assessment</span>
+            <span class="time-stamp" id="riskLastUpdated">Last updated: Just now</span>
+          </div>
+        </div>
+
+        <div class="risk-card-content">
+          <!-- Circular Gauge Container -->
+          <div class="gauge-container">
+            <svg class="gauge-svg" viewBox="0 0 200 200" id="riskGaugeSvg">
+              <!-- Background Track Arc -->
+              <path class="gauge-bg" d="M 30 150 A 80 80 0 1 1 170 150" fill="none" stroke-width="16" stroke-linecap="round"/>
+              <!-- Active Progress Arc -->
+              <path class="gauge-fill high-risk-stroke" id="gaugeProgressPath" d="M 30 150 A 80 80 0 1 1 170 150" fill="none" stroke-width="16" stroke-linecap="round" stroke-dasharray="351.8" stroke-dashoffset="98.5"/>
+              <!-- Gauge Center Label -->
+              <g class="gauge-center-group">
+                <text x="100" y="102" class="gauge-value mono-font" id="riskScoreVal">72%</text>
+                <text x="100" y="125" class="gauge-sublabel">RISK INDEX</text>
+              </g>
+            </svg>
+          </div>
+
+          <div class="risk-details-col">
+            <div class="status-indicator-box high-risk" id="riskStatusBox">
+              <span class="status-pulse-dot"></span>
+              <span class="status-label-text" id="riskStatusText">HIGH RISK</span>
+            </div>
+
+            <p class="risk-summary-desc" id="riskDescText">
+              Elevated methane concentrations detected in <strong>Zone B</strong> paired with reduced airflow velocity. AI model predicts risk escalation if ventilation is not adjusted.
+            </p>
+
+            <!-- Risk Level Scale Bar -->
+            <div class="risk-level-scale">
+              <div class="scale-item level-safe" id="lvlSafe">
+                <span class="scale-bar"></span>
+                <span class="scale-text">SAFE (0-25%)</span>
+              </div>
+              <div class="scale-item level-warning" id="lvlWarning">
+                <span class="scale-bar"></span>
+                <span class="scale-text">WARNING (26-50%)</span>
+              </div>
+              <div class="scale-item level-high active" id="lvlHigh">
+                <span class="scale-bar"></span>
+                <span class="scale-text">HIGH RISK (51-75%)</span>
+              </div>
+              <div class="scale-item level-critical" id="lvlCritical">
+                <span class="scale-bar"></span>
+                <span class="scale-text">CRITICAL (76-100%)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9. Communication Status Topology Strip Card -->
+      <div class="comm-topology-card glass-panel">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <i data-lucide="network" class="topo-icon"></i>
+            <h3>System Communication Topology</h3>
+          </div>
+          <span class="live-ping-badge"><span class="ping-dot"></span> REAL-TIME SYNC</span>
+        </div>
+
+        <div class="topology-diagram">
+          <div class="node-step">
+            <div class="node-circle online">
+              <i data-lucide="cpu"></i>
+            </div>
+            <span class="node-name">ESP32</span>
+            <span class="node-val mono-font">ONLINE</span>
+            <span class="node-meta">8 Nodes • 5ms</span>
+          </div>
+
+          <div class="arrow-line active"><span class="pulse-beam"></span></div>
+
+          <div class="node-step">
+            <div class="node-circle connected">
+              <i data-lucide="radio"></i>
+            </div>
+            <span class="node-name">MQTT / WS</span>
+            <span class="node-val mono-font">CONNECTED</span>
+            <span class="node-meta">24 msg/s • SSL</span>
+          </div>
+
+          <div class="arrow-line active"><span class="pulse-beam"></span></div>
+
+          <div class="node-step">
+            <div class="node-circle online">
+              <i data-lucide="server"></i>
+            </div>
+            <span class="node-name">FastAPI</span>
+            <span class="node-val mono-font">ONLINE</span>
+            <span class="node-meta">v0.109 • 4ms</span>
+          </div>
+
+          <div class="arrow-line active"><span class="pulse-beam"></span></div>
+
+          <div class="node-step">
+            <div class="node-circle active">
+              <i data-lucide="sparkles"></i>
+            </div>
+            <span class="node-name">ML Model</span>
+            <span class="node-val mono-font">ACTIVE</span>
+            <span class="node-meta">XGBoost v2.4</span>
+          </div>
+
+          <div class="arrow-line active"><span class="pulse-beam"></span></div>
+
+          <div class="node-step">
+            <div class="node-circle connected">
+              <i data-lucide="database"></i>
+            </div>
+            <span class="node-name">Database</span>
+            <span class="node-val mono-font">CONNECTED</span>
+            <span class="node-meta">TimescaleDB</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. LIVE SENSOR MONITORING (8 SENSOR CARDS GRID) -->
+    <section class="sensors-section">
+      <div class="section-title-bar">
+        <div class="title-with-icon">
+          <i data-lucide="gauge"></i>
+          <h3>Live Telemetry Sensors (8 Channel Grid)</h3>
+        </div>
+        <span class="sec-subtitle">Real-Time Atmospheric & Thermal Sensors • Shaft Telemetry</span>
+      </div>
+
+      <div class="sensors-grid" id="sensorsGrid">
+        <!-- Sensor cards generated dynamically / structured below for 8 exact sensors -->
+        
+        <!-- 1. O2 Sensor Card -->
+        <div class="sensor-card glass-panel status-normal" id="sensor-o2">
+          <div class="s-card-top">
+            <div class="s-title-box">
+              <span class="s-symbol">O₂</span>
+              <span class="s-name">Oxygen</span>
+            </div>
+            <span class="s-badge normal">NORMAL</span>
+          </div>
+          <div class="s-value-wrap">
+            <span class="s-val mono-font" id="val-o2">19.8</span>
+            <span class="s-unit">%</span>
+          </div>
+          <div class="s-range-bar-wrap">
+            <div class="s-range-labels">
+              <span>Safe Range</span>
+              <span class="mono-font">19.5% – 23.5%</span>
+            </div>
+            <div class="s-progress-track">
+              <div class="s-progress-fill normal-bg" id="fill-o2" style="width: 65%;"></div>
+            </div>
+          </div>
+          <div class="s-sparkline-container">
+            <canvas id="spark-o2" class="sparkline-canvas" width="220" height="42"></canvas>
+          </div>
+        </div>
+
+        <!-- 2. CH4 Sensor Card -->
+        <div class="sensor-card glass-panel status-warning" id="sensor-ch4">
+          <div class="s-card-top">
+            <div class="s-title-box">
+              <span class="s-symbol warning-text">CH₄</span>
+              <span class="s-name">Methane</span>
+            </div>
+            <span class="s-badge warning">WARNING</span>
+          </div>
+          <div class="s-value-wrap">
+            <span class="s-val mono-font warning-text" id="val-ch4">0.8</span>
+            <span class="s-unit">%</span>
+          </div>
+          <div class="s-range-bar-wrap">
+            <div class="s-range-labels">
+              <span>Normal Range</span>
+              <span class="mono-font">&lt; 0.5%</span>
+            </div>
+            <div class="s-progress-track">
+              <div class="s-progress-fill warning-bg" id="fill-ch4" style="width: 80%;"></div>
+            </div>
+          </div>
+          <div class="s-sparkline-container">
+            <canvas id="spark-ch4" class="sparkline-canvas" width="220" height="42"></canvas>
+          </div>
+        </div>
+
+        <!-- 3. CO2 Sensor Card -->
+        <div class="sensor-card glass-panel status-normal" id="sensor-co2">
+          <div class="s-card-top">
+            <div class="s-title-box">
+              <span class="s-symbol">CO₂</span>
+              <span class="s-name">Carbon Dioxide</span>
+            </div>
+            <span class="s-badge normal">NORMAL</span>
+          </div>
+          <div class="s-value-wrap">
+            <span class="s-val mono-font" id="val-co2">850</span>
+            <span class="s-unit">ppm</span>
+          </div>
+          <div class="s-range-bar-wrap">
+            <div class="s-range-labels">
+              <span>Safe Range</span>
+              <span class="mono-font">&lt; 1000 ppm</span>
+            </div>
+            <div class="s-progress-track">
+              <div class="s-progress-fill normal-bg" id="fill-co2" style="width: 45%;"></div>
+            </div>
+          </div>
+          <div class="s-sparkline-container">
+            <canvas id="spark-co2" class="sparkline-canvas" width="220" height="42"></canvas>
+          </div>
+        </div>
+
+        <!-- 4. CO Sensor Card -->
+        <div class="sensor-card glass-panel status-warning" id="sensor-co">
+          <div class="s-card-top">
+            <div class="s-title-box">
+              <span class="s-symbol warning-text">CO</span>
+              <span class="s-name">Carbon Monoxide</span>
+            </div>
+            <span class="s-badge warning">WARNING</span>
+          </div>
+          <div class="s-value-wrap">
+            <span class="s-val mono-font warning-text" id="val-co">38</span>
+            <span class="s-unit">ppm</span>
+          </div>
+          <div class="s-range-bar-wrap">
+            <div class="s-range-labels">
+              <span>Safe Range</span>
+              <span class="mono-font">&lt; 35 ppm</span>
+            </div>
+            <div class="s-progress-track">
+              <div class="s-progress-fill warning-bg" id="fill-co" style="width: 76%;"></div>
+            </div>
+          </div>
+          <div class="s-sparkline-container">
+            <canvas id="spark-co" class="sparkline-canvas" width="220" height="42"></canvas>
+          </div>
+        </div>
+
+        <!-- 5. Temperature Sensor Card -->
+        <div class="sensor-card glass-panel status-warning" id="sensor-temp">
+          <div class="s-card-top">
+            <div class="s-title-box">
+              <span class="s-symbol warning-text">TEMP</span>
+              <span class="s-name">Temperature</span>
+            </div>
+            <span class="s-badge warning">WARNING</span>
+          </div>
+          <div class="s-value-wrap">
+            <span class="s-val mono-font warning-text" id="val-temp">34.2</span>
+            <span class="s-unit">°C</span>
+          </div>
+          <div class="s-range-bar-wrap">
+            <div class="s-range-labels">
+              <span>Safe Range</span>
+              <span class="mono-font">18°C – 28°C</span>
+            </div>
+            <div class="s-progress-track">
+              <div class="s-progress-fill warning-bg" id="fill-temp" style="width: 85%;"></div>
+            </div>
+          </div>
+          <div class="s-sparkline-container">
+            <canvas id="spark-temp" class="sparkline-canvas" width="220" height="42"></canvas>
+          </div>
+        </div>
+
+        <!-- 6. Humidity Sensor Card -->
+        <div class="sensor-card glass-panel status-normal" id="sensor-hum">
+          <div class="s-card-top">
+            <div class="s-title-box">
+              <span class="s-symbol">HUM</span>
+              <span class="s-name">Humidity</span>
+            </div>
+            <span class="s-badge normal">NORMAL</span>
+          </div>
+          <div class="s-value-wrap">
+            <span class="s-val mono-font" id="val-hum">82</span>
+            <span class="s-unit">%</span>
+          </div>
+          <div class="s-range-bar-wrap">
+            <div class="s-range-labels">
+              <span>Safe Range</span>
+              <span class="mono-font">40% – 70%</span>
+            </div>
+            <div class="s-progress-track">
+              <div class="s-progress-fill normal-bg" id="fill-hum" style="width: 82%;"></div>
+            </div>
+          </div>
+          <div class="s-sparkline-container">
+            <canvas id="spark-hum" class="sparkline-canvas" width="220" height="42"></canvas>
+          </div>
+        </div>
+
+        <!-- 7. Airflow Sensor Card -->
+        <div class="sensor-card glass-panel status-warning" id="sensor-air">
+          <div class="s-card-top">
+            <div class="s-title-box">
+              <span class="s-symbol warning-text">AIR</span>
+              <span class="s-name">Airflow</span>
+            </div>
+            <span class="s-badge warning">WARNING</span>
+          </div>
+          <div class="s-value-wrap">
+            <span class="s-val mono-font warning-text" id="val-air">0.6</span>
+            <span class="s-unit">m/s</span>
+          </div>
+          <div class="s-range-bar-wrap">
+            <div class="s-range-labels">
+              <span>Safe Range</span>
+              <span class="mono-font">&gt; 1.2 m/s</span>
+            </div>
+            <div class="s-progress-track">
+              <div class="s-progress-fill warning-bg" id="fill-air" style="width: 40%;"></div>
+            </div>
+          </div>
+          <div class="s-sparkline-container">
+            <canvas id="spark-air" class="sparkline-canvas" width="220" height="42"></canvas>
+          </div>
+        </div>
+
+        <!-- 8. Smoke Sensor Card -->
+        <div class="sensor-card glass-panel status-warning" id="sensor-smoke">
+          <div class="s-card-top">
+            <div class="s-title-box">
+              <span class="s-symbol warning-text">SMK</span>
+              <span class="s-name">Smoke</span>
+            </div>
+            <span class="s-badge warning">WARNING</span>
+          </div>
+          <div class="s-value-wrap">
+            <span class="s-val mono-font warning-text" id="val-smoke">120</span>
+            <span class="s-unit">AQI</span>
+          </div>
+          <div class="s-range-bar-wrap">
+            <div class="s-range-labels">
+              <span>Safe Range</span>
+              <span class="mono-font">&lt; 50 AQI</span>
+            </div>
+            <div class="s-progress-track">
+              <div class="s-progress-fill warning-bg" id="fill-smoke" style="width: 75%;"></div>
+            </div>
+          </div>
+          <div class="s-sparkline-container">
+            <canvas id="spark-smoke" class="sparkline-canvas" width="220" height="42"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- MIDDLE ROW: MAP (60%) + WORKER TRACKING & AI PREDICTION (40%) -->
+    <section class="middle-layout-grid">
+      
+      <!-- 4. MINE ZONE MAP -->
+      <div class="map-card glass-panel">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <i data-lucide="map" class="map-icon"></i>
+            <h3>Underground Mine Zone & Telemetry Map</h3>
+          </div>
+          <div class="map-controls-top">
+            <span class="zone-pill zone-b-pill pulse-red">ZONE B HAZARD ACTIVE</span>
+            <button id="resetMapBtn" class="map-mini-btn" title="Reset View">
+              <i data-lucide="rotate-ccw"></i> Reset
+            </button>
+          </div>
+        </div>
+
+        <div class="map-view-body">
+          <!-- Interactive SVG/Canvas Mine Layout -->
+          <div class="mine-svg-wrapper" id="mineMapWrapper">
+            <svg viewBox="0 0 900 520" class="mine-svg-map" id="mineSvgMap">
+              <defs>
+                <!-- Gradients & Patterns -->
+                <radialGradient id="hazardGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#ff0055" stop-opacity="0.6"/>
+                  <stop offset="60%" stop-color="#ff0055" stop-opacity="0.2"/>
+                  <stop offset="100%" stop-color="#ff0055" stop-opacity="0"/>
+                </radialGradient>
+                <pattern id="tunnelGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                </pattern>
+                <pattern id="hazardHatch" width="12" height="12" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+                  <line x1="0" y1="0" x2="0" y2="12" stroke="rgba(255, 0, 85, 0.25)" stroke-width="3"/>
+                </pattern>
+              </defs>
+
+              <!-- Map Grid Background -->
+              <rect width="900" height="520" fill="#0b0f19"/>
+              <rect width="900" height="520" fill="url(#tunnelGrid)"/>
+
+              <!-- Mine Geology / Rock Layers Outline -->
+              <path d="M 40,40 L 860,40 L 860,480 L 40,480 Z" fill="none" stroke="#1b253b" stroke-width="2" stroke-dasharray="6,4"/>
+
+              <!-- Vertical Main Elevator Access Shaft -->
+              <g class="shaft-structure">
+                <rect x="80" y="40" width="40" height="440" fill="#131b2e" stroke="#253554" stroke-width="2"/>
+                <line x1="100" y1="40" x2="100" y2="480" stroke="#3b527d" stroke-dasharray="4,4"/>
+                <text x="100" y="30" fill="#64748b" text-anchor="middle" font-size="11" font-weight="700">MAIN ACCESS SHAFT (-400m)</text>
+              </g>
+
+              <!-- MINE ZONES TUNNEL PATHWAYS -->
+
+              <!-- ZONE A: Primary Excavation (Top-Right) -->
+              <g class="zone-group" id="svg-zone-a" data-zone="Zone A">
+                <!-- Tunnel Tubes -->
+                <path d="M 120,130 L 480,130 L 480,210 L 820,210" fill="none" stroke="#1d2a44" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M 120,130 L 480,130 L 480,210 L 820,210" fill="none" stroke="#10b981" stroke-width="2" stroke-opacity="0.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="520" y="160" width="280" height="90" rx="8" fill="#10b981" fill-opacity="0.06" stroke="#10b981" stroke-opacity="0.3" stroke-width="1.5"/>
+                <text x="660" y="185" fill="#10b981" text-anchor="middle" font-size="14" font-weight="800">ZONE A</text>
+                <text x="660" y="202" fill="#94a3b8" text-anchor="middle" font-size="11">North Primary Excavation</text>
+                <rect x="750" y="170" width="42" height="18" rx="4" fill="#10b981" fill-opacity="0.2"/>
+                <text x="771" y="183" fill="#10b981" text-anchor="middle" font-size="10" font-weight="700">SAFE</text>
+              </g>
+
+              <!-- ZONE B: Deep Extraction Tunnel (HAZARD ZONE - Middle Right) -->
+              <g class="zone-group hazard-active" id="svg-zone-b" data-zone="Zone B">
+                <!-- Pulsing Hazard Glow Circle -->
+                <circle cx="560" cy="340" r="110" fill="url(#hazardGlow)" class="hazard-pulse-ring"/>
+                <rect x="360" y="280" width="450" height="130" rx="10" fill="url(#hazardHatch)" stroke="#ff0055" stroke-width="2.5" stroke-dasharray="8,4" class="hazard-border-anim"/>
+                <!-- Tunnel Track -->
+                <path d="M 120,340 L 810,340" fill="none" stroke="#2d1525" stroke-width="38" stroke-linecap="round"/>
+                <path d="M 120,340 L 810,340" fill="none" stroke="#ff0055" stroke-width="2" stroke-linecap="round"/>
+
+                <text x="560" y="315" fill="#ff0055" text-anchor="middle" font-size="16" font-weight="800" class="hazard-text-flash">⚠️ ZONE B (HAZARD ACTIVE)</text>
+                <text x="560" y="333" fill="#fda4af" text-anchor="middle" font-size="11">Deep Shaft Extraction • CH₄ 0.8% Spike</text>
+
+                <!-- Hazard Alert Banner on Map -->
+                <g transform="translate(480, 360)">
+                  <rect x="0" y="0" width="160" height="24" rx="12" fill="#ff0055"/>
+                  <text x="80" y="16" fill="#ffffff" text-anchor="middle" font-size="11" font-weight="800">CH₄ METHANE SPIKE</text>
+                </g>
+              </g>
+
+              <!-- ZONE C: Ventilation & Air Drift (Lower Left) -->
+              <g class="zone-group" id="svg-zone-c" data-zone="Zone C">
+                <path d="M 120,240 L 320,240 L 320,440 L 120,440" fill="none" stroke="#1a263d" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="140" y="370" width="160" height="85" rx="8" fill="#eab308" fill-opacity="0.06" stroke="#eab308" stroke-opacity="0.4" stroke-width="1.5"/>
+                <text x="220" y="395" fill="#eab308" text-anchor="middle" font-size="14" font-weight="800">ZONE C</text>
+                <text x="220" y="412" fill="#94a3b8" text-anchor="middle" font-size="11">Air Drift & Vent #3</text>
+                <rect x="190" y="422" width="60" height="18" rx="4" fill="#eab308" fill-opacity="0.2"/>
+                <text x="220" y="435" fill="#eab308" text-anchor="middle" font-size="10" font-weight="700">WARNING</text>
+              </g>
+
+              <!-- ZONE D: Equipment & Storage Bay (Bottom Center) -->
+              <g class="zone-group" id="svg-zone-d" data-zone="Zone D">
+                <path d="M 320,440 L 780,440" fill="none" stroke="#1d2a44" stroke-width="32" stroke-linecap="round"/>
+                <rect x="360" y="430" width="220" height="42" rx="6" fill="#10b981" fill-opacity="0.06" stroke="#10b981" stroke-opacity="0.3"/>
+                <text x="470" y="455" fill="#10b981" text-anchor="middle" font-size="13" font-weight="800">ZONE D • Equipment Workshop</text>
+              </g>
+
+              <!-- SENSOR PINS (S1 to S8) -->
+              <g class="sensor-pins-layer">
+                <!-- S1 O2 Pin (Zone A) -->
+                <g transform="translate(540, 140)" class="map-pin-group" data-sensor="O2">
+                  <circle cx="0" cy="0" r="10" fill="#10b981"/>
+                  <text x="0" y="4" fill="#000" text-anchor="middle" font-size="9" font-weight="800">O₂</text>
+                </g>
+                <!-- S2 CH4 Pin (Zone B) -->
+                <g transform="translate(520, 340)" class="map-pin-group hazard-pin" data-sensor="CH4">
+                  <circle cx="0" cy="0" r="14" fill="#ff0055" class="pin-pulse"/>
+                  <circle cx="0" cy="0" r="10" fill="#ff0055"/>
+                  <text x="0" y="4" fill="#fff" text-anchor="middle" font-size="9" font-weight="900">CH₄</text>
+                </g>
+                <!-- S3 CO2 Pin (Zone A) -->
+                <g transform="translate(720, 140)" class="map-pin-group" data-sensor="CO2">
+                  <circle cx="0" cy="0" r="10" fill="#10b981"/>
+                  <text x="0" y="4" fill="#000" text-anchor="middle" font-size="8" font-weight="800">CO₂</text>
+                </g>
+                <!-- S4 CO Pin (Zone B) -->
+                <g transform="translate(680, 340)" class="map-pin-group" data-sensor="CO">
+                  <circle cx="0" cy="0" r="10" fill="#f59e0b"/>
+                  <text x="0" y="4" fill="#000" text-anchor="middle" font-size="9" font-weight="800">CO</text>
+                </g>
+                <!-- S5 Temp Pin (Zone B) -->
+                <g transform="translate(420, 340)" class="map-pin-group" data-sensor="Temp">
+                  <circle cx="0" cy="0" r="10" fill="#f59e0b"/>
+                  <text x="0" y="4" fill="#000" text-anchor="middle" font-size="8" font-weight="800">TMP</text>
+                </g>
+                <!-- S6 Humidity Pin (Zone C) -->
+                <g transform="translate(240, 240)" class="map-pin-group" data-sensor="Hum">
+                  <circle cx="0" cy="0" r="10" fill="#10b981"/>
+                  <text x="0" y="4" fill="#000" text-anchor="middle" font-size="8" font-weight="800">HUM</text>
+                </g>
+                <!-- S7 Airflow Pin (Zone C) -->
+                <g transform="translate(180, 340)" class="map-pin-group" data-sensor="Air">
+                  <circle cx="0" cy="0" r="10" fill="#f59e0b"/>
+                  <text x="0" y="4" fill="#000" text-anchor="middle" font-size="8" font-weight="800">AIR</text>
+                </g>
+                <!-- S8 Smoke Pin (Zone B) -->
+                <g transform="translate(600, 340)" class="map-pin-group" data-sensor="Smoke">
+                  <circle cx="0" cy="0" r="10" fill="#f59e0b"/>
+                  <text x="0" y="4" fill="#000" text-anchor="middle" font-size="8" font-weight="800">SMK</text>
+                </g>
+              </g>
+
+              <!-- WORKER MARKERS (UWB Blue Dot / Ring) -->
+              <g class="workers-map-layer">
+                <!-- W01 in Zone A (Safe) -->
+                <g transform="translate(620, 210)" class="worker-pin" id="map-w01" data-worker="W01">
+                  <circle cx="0" cy="0" r="12" fill="#3b82f6" fill-opacity="0.25"/>
+                  <circle cx="0" cy="0" r="6" fill="#00c8ff"/>
+                  <rect x="-14" y="-22" width="28" height="13" rx="3" fill="#0f172a" stroke="#00c8ff" stroke-width="1"/>
+                  <text x="0" y="-13" fill="#00c8ff" text-anchor="middle" font-size="9" font-weight="700">W01</text>
+                </g>
+
+                <!-- W02 in Zone B (At Risk - 6m) -->
+                <g transform="translate(480, 340)" class="worker-pin" id="map-w02" data-worker="W02">
+                  <!-- Vector line to hazard center -->
+                  <line x1="0" y1="0" x2="40" y2="0" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3,3"/>
+                  <circle cx="0" cy="0" r="14" fill="#f59e0b" fill-opacity="0.3" class="pin-pulse"/>
+                  <circle cx="0" cy="0" r="7" fill="#f59e0b"/>
+                  <rect x="-14" y="-24" width="28" height="14" rx="3" fill="#0f172a" stroke="#f59e0b" stroke-width="1"/>
+                  <text x="0" y="-14" fill="#f59e0b" text-anchor="middle" font-size="9" font-weight="800">W02</text>
+                </g>
+
+                <!-- W03 in Zone C (Safe) -->
+                <g transform="translate(260, 410)" class="worker-pin" id="map-w03" data-worker="W03">
+                  <circle cx="0" cy="0" r="6" fill="#00c8ff"/>
+                  <rect x="-14" y="-22" width="28" height="13" rx="3" fill="#0f172a" stroke="#00c8ff" stroke-width="1"/>
+                  <text x="0" y="-13" fill="#00c8ff" text-anchor="middle" font-size="9" font-weight="700">W03</text>
+                </g>
+
+                <!-- W04 in Zone D (Safe) -->
+                <g transform="translate(440, 450)" class="worker-pin" id="map-w04" data-worker="W04">
+                  <circle cx="0" cy="0" r="6" fill="#00c8ff"/>
+                  <rect x="-14" y="-22" width="28" height="13" rx="3" fill="#0f172a" stroke="#00c8ff" stroke-width="1"/>
+                  <text x="0" y="-13" fill="#00c8ff" text-anchor="middle" font-size="9" font-weight="700">W04</text>
+                </g>
+
+                <!-- W05 in Zone B (Critical - 4m) -->
+                <g transform="translate(545, 340)" class="worker-pin hazard-worker" id="map-w05" data-worker="W05">
+                  <circle cx="0" cy="0" r="16" fill="#ff0055" fill-opacity="0.4" class="pin-pulse"/>
+                  <circle cx="0" cy="0" r="7" fill="#ff0055"/>
+                  <rect x="-14" y="-25" width="28" height="14" rx="3" fill="#450a0a" stroke="#ff0055" stroke-width="1.5"/>
+                  <text x="0" y="-15" fill="#ffffff" text-anchor="middle" font-size="9" font-weight="900">W05</text>
+                </g>
+              </g>
+
+              <!-- RESCUE ROBOT MARKER (Purple Marker in Zone B) -->
+              <g transform="translate(630, 340)" class="robot-map-pin" id="map-robot" data-robot="R01">
+                <!-- Camera view frustum cone -->
+                <path d="M 0,0 L -50,-25 L -50,25 Z" fill="#a855f7" fill-opacity="0.25" stroke="#a855f7" stroke-width="1" stroke-dasharray="2,2"/>
+                <circle cx="0" cy="0" r="16" fill="#a855f7" fill-opacity="0.3" class="robot-pulse"/>
+                <rect x="-10" y="-10" width="20" height="20" rx="4" fill="#a855f7" stroke="#ffffff" stroke-width="1.5"/>
+                <text x="0" y="4" fill="#ffffff" text-anchor="middle" font-size="10" font-weight="900">R1</text>
+                <rect x="-24" y="-24" width="48" height="13" rx="3" fill="#1e1035" stroke="#a855f7" stroke-width="1"/>
+                <text x="0" y="-15" fill="#d8b4fe" text-anchor="middle" font-size="8" font-weight="800">RESCUE BOT</text>
+              </g>
+
+            </svg>
+          </div>
+
+          <!-- Map Legend Overlay -->
+          <div class="map-legend-bar">
+            <div class="legend-title">MARKERS:</div>
+            <div class="legend-item"><span class="lg-dot lg-green"></span> Green = Safe</div>
+            <div class="legend-item"><span class="lg-dot lg-yellow"></span> Yellow = Warning</div>
+            <div class="legend-item"><span class="lg-dot lg-red"></span> Red = Hazard</div>
+            <div class="legend-item"><span class="lg-dot lg-blue"></span> Blue = Worker (UWB)</div>
+            <div class="legend-item"><span class="lg-dot lg-purple"></span> Purple = Robot</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: WORKER TRACKING & AI PREDICTION -->
+      <div class="right-column-stack">
+        
+        <!-- 5. WORKER TRACKING PANEL -->
+        <div class="worker-card glass-panel">
+          <div class="card-header">
+            <div class="card-title-wrap">
+              <i data-lucide="users" class="worker-icon"></i>
+              <h3>Worker Safety &amp; Location (UWB Pinpoint)</h3>
+            </div>
+            <span class="count-badge">5 Active Underground</span>
+          </div>
+
+          <!-- Alert banner if worker at risk -->
+          <div class="worker-alert-banner" id="workerAlertBanner">
+            <i data-lucide="alert-triangle"></i>
+            <span><strong>CRITICAL SAFETY ALERT:</strong> 2 workers (W02, W05) located inside Zone B hazard radius (&lt;10m)!</span>
+          </div>
+
+          <div class="worker-table-wrap">
+            <table class="worker-table">
+              <thead>
+                <tr>
+                  <th>WORKER</th>
+                  <th>ZONE</th>
+                  <th>UWB LOC</th>
+                  <th>HAZARD DIST</th>
+                  <th>STATUS</th>
+                </tr>
+              </thead>
+              <tbody id="workerTableBody">
+                <!-- Example W01 -->
+                <tr data-worker="W01" class="worker-row">
+                  <td>
+                    <div class="w-id-wrap">
+                      <span class="w-avatar safe">W01</span>
+                      <div class="w-info">
+                        <span class="w-name">Worker W01</span>
+                        <span class="w-role">Miner • Team A</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="zone-tag zone-a">Zone A</span></td>
+                  <td class="mono-font text-sub">X:142, Y:88</td>
+                  <td class="mono-font">18 m</td>
+                  <td><span class="w-status-badge status-safe">SAFE</span></td>
+                </tr>
+
+                <!-- Example W02 -->
+                <tr data-worker="W02" class="worker-row at-risk-row">
+                  <td>
+                    <div class="w-id-wrap">
+                      <span class="w-avatar warning">W02</span>
+                      <div class="w-info">
+                        <span class="w-name">Worker W02</span>
+                        <span class="w-role">Drill Tech • Team B</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="zone-tag zone-b">Zone B</span></td>
+                  <td class="mono-font text-sub">X:305, Y:210</td>
+                  <td class="mono-font warning-text">6 m</td>
+                  <td><span class="w-status-badge status-at-risk">AT RISK</span></td>
+                </tr>
+
+                <!-- Example W03 -->
+                <tr data-worker="W03" class="worker-row">
+                  <td>
+                    <div class="w-id-wrap">
+                      <span class="w-avatar safe">W03</span>
+                      <div class="w-info">
+                        <span class="w-name">Worker W03</span>
+                        <span class="w-role">Vent Engineer</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="zone-tag zone-c">Zone C</span></td>
+                  <td class="mono-font text-sub">X:512, Y:340</td>
+                  <td class="mono-font">35 m</td>
+                  <td><span class="w-status-badge status-safe">SAFE</span></td>
+                </tr>
+
+                <!-- Example W04 -->
+                <tr data-worker="W04" class="worker-row">
+                  <td>
+                    <div class="w-id-wrap">
+                      <span class="w-avatar safe">W04</span>
+                      <div class="w-info">
+                        <span class="w-name">Worker W04</span>
+                        <span class="w-role">Mechanic</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="zone-tag zone-d">Zone D</span></td>
+                  <td class="mono-font text-sub">X:120, Y:410</td>
+                  <td class="mono-font">42 m</td>
+                  <td><span class="w-status-badge status-safe">SAFE</span></td>
+                </tr>
+
+                <!-- Example W05 -->
+                <tr data-worker="W05" class="worker-row critical-row">
+                  <td>
+                    <div class="w-id-wrap">
+                      <span class="w-avatar critical">W05</span>
+                      <div class="w-info">
+                        <span class="w-name">Worker W05</span>
+                        <span class="w-role">Blasting Tech</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="zone-tag zone-b">Zone B</span></td>
+                  <td class="mono-font text-sub">X:318, Y:215</td>
+                  <td class="mono-font critical-text">4 m</td>
+                  <td><span class="w-status-badge status-critical">CRITICAL</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 6. AI PREDICTION PANEL -->
+        <div class="ai-pred-card glass-panel">
+          <div class="card-header">
+            <div class="card-title-wrap">
+              <i data-lucide="trending-up" class="ai-pred-icon"></i>
+              <h3>AI Hazard Prediction Engine</h3>
+            </div>
+            <span class="model-tag">XGBoost v2.4</span>
+          </div>
+
+          <div class="pred-summary-grid">
+            <div class="pred-box">
+              <span class="pred-label">AI Risk Score</span>
+              <span class="pred-val mono-font high-risk-text" id="predRiskScore">72%</span>
+            </div>
+            <div class="pred-box">
+              <span class="pred-label">Predicted Level</span>
+              <span class="pred-val-badge high-risk-bg" id="predRiskLevel">HIGH RISK</span>
+            </div>
+          </div>
+
+          <div class="factors-section">
+            <span class="factors-title">Main Contributing Factors:</span>
+            <ul class="factors-list">
+              <li><i data-lucide="check-circle-2" class="factor-icon warning"></i> <span>Increased CH₄ (Methane buildup +0.3%/h)</span></li>
+              <li><i data-lucide="check-circle-2" class="factor-icon warning"></i> <span>Reduced O₂ (19.8% Oxygen level)</span></li>
+              <li><i data-lucide="check-circle-2" class="factor-icon warning"></i> <span>Low Airflow (0.6 m/s ventilation velocity)</span></li>
+              <li><i data-lucide="check-circle-2" class="factor-icon warning"></i> <span>Increased Temperature (34.2 °C)</span></li>
+            </ul>
+          </div>
+
+          <!-- 30-Minute Risk Score Line Graph -->
+          <div class="pred-chart-wrap">
+            <div class="chart-header">
+              <span class="chart-title">Risk Trend (Last 30 Minutes)</span>
+              <span class="chart-legend"><span class="thresh-line"></span> Threshold (80% Critical)</span>
+            </div>
+            <div class="chart-canvas-box">
+              <canvas id="riskTrendChart" height="140"></canvas>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- BOTTOM ROW: ALERT & EVENT PANEL (50%) + ROBOT MONITORING (50%) -->
+    <section class="bottom-layout-grid">
+      
+      <!-- 7. ALERT & EVENT PANEL -->
+      <div class="alerts-card glass-panel">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <i data-lucide="bell" class="alerts-icon"></i>
+            <h3>Real-Time Safety Alerts</h3>
+          </div>
+          <span class="alert-count-pill" id="activeAlertCount">3 ACTIVE ALERTS</span>
+        </div>
+
+        <div class="alerts-list" id="alertsList">
+          
+          <!-- Alert Item 1: Critical -->
+          <div class="alert-item item-critical" data-zone="Zone B" data-sensor="CH4">
+            <div class="alert-item-header">
+              <div class="alert-tag-group">
+                <span class="severity-badge critical">🚨 CRITICAL</span>
+                <span class="alert-zone-pill">Zone B</span>
+                <span class="alert-time mono-font">09:14:22</span>
+              </div>
+              <span class="hazard-title">CH₄ Methane High (0.8%)</span>
+            </div>
+
+            <div class="alert-body-text">
+              <strong>Recommended Response:</strong> Activate auxiliary exhaust fan #2 immediately &amp; dispatch Rescue Robot R-01 to inspect Zone B gas leak point.
+            </div>
+
+            <div class="alert-actions">
+              <button class="btn-ack" onclick="acknowledgeAlert(this)">
+                <i data-lucide="check-square"></i> ACKNOWLEDGE
+              </button>
+              <button class="btn-loc" onclick="focusZone('Zone B')">
+                <i data-lucide="map-pin"></i> VIEW LOCATION
+              </button>
+              <button class="btn-escalate" onclick="escalateAlert('CH4 High Zone B')">
+                <i data-lucide="alert-octagon"></i> ESCALATE
+              </button>
+            </div>
+          </div>
+
+          <!-- Alert Item 2: Warning -->
+          <div class="alert-item item-warning" data-zone="Zone C" data-sensor="Air">
+            <div class="alert-item-header">
+              <div class="alert-tag-group">
+                <span class="severity-badge warning">⚠️ WARNING</span>
+                <span class="alert-zone-pill">Zone C</span>
+                <span class="alert-time mono-font">09:12:05</span>
+              </div>
+              <span class="hazard-title">Low Airflow Velocity (0.6 m/s)</span>
+            </div>
+
+            <div class="alert-body-text">
+              <strong>Recommended Response:</strong> Inspect Shaft #3 ventilation damper position and check for airflow obstruction in West Air Drift.
+            </div>
+
+            <div class="alert-actions">
+              <button class="btn-ack" onclick="acknowledgeAlert(this)">
+                <i data-lucide="check-square"></i> ACKNOWLEDGE
+              </button>
+              <button class="btn-loc" onclick="focusZone('Zone C')">
+                <i data-lucide="map-pin"></i> VIEW LOCATION
+              </button>
+              <button class="btn-escalate" onclick="escalateAlert('Low Airflow Zone C')">
+                <i data-lucide="alert-octagon"></i> ESCALATE
+              </button>
+            </div>
+          </div>
+
+          <!-- Alert Item 3: Warning -->
+          <div class="alert-item item-warning" data-zone="Zone A" data-sensor="Temp">
+            <div class="alert-item-header">
+              <div class="alert-tag-group">
+                <span class="severity-badge warning">⚠️ WARNING</span>
+                <span class="alert-zone-pill">Zone A</span>
+                <span class="alert-time mono-font">09:08:41</span>
+              </div>
+              <span class="hazard-title">Temperature Rising (34.2 °C)</span>
+            </div>
+
+            <div class="alert-body-text">
+              <strong>Recommended Response:</strong> Verify cooling water pipe pressure and monitor thermal camera array in Zone A excavation face.
+            </div>
+
+            <div class="alert-actions">
+              <button class="btn-ack" onclick="acknowledgeAlert(this)">
+                <i data-lucide="check-square"></i> ACKNOWLEDGE
+              </button>
+              <button class="btn-loc" onclick="focusZone('Zone A')">
+                <i data-lucide="map-pin"></i> VIEW LOCATION
+              </button>
+              <button class="btn-escalate" onclick="escalateAlert('Temp Rising Zone A')">
+                <i data-lucide="alert-octagon"></i> ESCALATE
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 8. ROBOT MONITORING -->
+      <div class="robot-card glass-panel">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <i data-lucide="bot" class="robot-icon"></i>
+            <h3>Rescue / Inspection Robot (MINEXA Bot R-01)</h3>
+          </div>
+          <span class="robot-status-pill active" id="robotStatusPill">
+            <span class="r-dot"></span> ACTIVE PATROL
+          </span>
+        </div>
+
+        <div class="robot-telemetry-grid">
+          <div class="r-tele-item">
+            <span class="r-label">Robot Status</span>
+            <span class="r-val active-text" id="rStatusVal">ACTIVE</span>
+          </div>
+          <div class="r-tele-item">
+            <span class="r-label">Current Zone</span>
+            <span class="r-val" id="rZoneVal">Zone B</span>
+          </div>
+          <div class="r-tele-item">
+            <span class="r-label">Battery Level</span>
+            <div class="r-battery-wrap">
+              <div class="r-battery-bar"><div class="r-bat-fill" style="width: 84%;"></div></div>
+              <span class="mono-font" id="rBatVal">84%</span>
+            </div>
+          </div>
+          <div class="r-tele-item">
+            <span class="r-label">Camera Feed</span>
+            <span class="r-val mono-font" id="rCamVal">1080p FLIR</span>
+          </div>
+          <div class="r-tele-item full-width">
+            <span class="r-label">Inspection Status</span>
+            <span class="r-val highlight-purple" id="rInspVal">Autonomous Patrol • Thermal Gas Leak Sniffing in Tunnel B-2</span>
+          </div>
+        </div>
+
+        <!-- Live Camera Preview Container -->
+        <div class="robot-camera-wrapper">
+          <div class="cam-header-overlay">
+            <div class="cam-title">
+              <span class="cam-rec-dot"></span>
+              <span id="camHeaderTitle">Robot Camera – Zone B</span>
+            </div>
+            <div class="cam-mode-toggles">
+              <button class="cam-mode-btn active" id="btnModeThermal" onclick="setCamMode('thermal')">THERMAL</button>
+              <button class="cam-mode-btn" id="btnModeNight" onclick="setCamMode('night')">NIGHT VISION</button>
+              <button class="cam-mode-btn" id="btnModeRGB" onclick="setCamMode('rgb')">HD RGB</button>
+            </div>
+          </div>
+
+          <!-- Canvas Rendering Live Dynamic Camera Feed -->
+          <div class="cam-canvas-box">
+            <canvas id="robotCamCanvas" width="560" height="260"></canvas>
+            
+            <!-- HUD Overlays -->
+            <div class="hud-crosshair"></div>
+            <div class="hud-top-meta">
+              <span class="mono-font">LATENCY: 12ms</span>
+              <span class="mono-font">DEPTH: 4.2m</span>
+              <span class="mono-font">CH₄: 0.8% HIGH</span>
+            </div>
+            <div class="hud-bottom-meta">
+              <span class="mono-font">FPS: 30.0</span>
+              <span class="mono-font" id="hudTime">09:15:11</span>
+              <span class="mono-font">IR SPOTLIGHT: ON</span>
+            </div>
+          </div>
+
+          <div class="cam-controls-bar">
+            <button class="cam-ctrl-btn" id="rPanLeft"><i data-lucide="arrow-left"></i> Pan L</button>
+            <button class="cam-ctrl-btn" id="rPanRight"><i data-lucide="arrow-right"></i> Pan R</button>
+            <button class="cam-ctrl-btn" id="rSniffGas"><i data-lucide="wind"></i> Deploy Sniffer Probe</button>
+            <button class="cam-ctrl-btn" id="rIrToggle"><i data-lucide="sun"></i> IR Spotlight</button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="control-room-footer">
+      <div class="footer-left">
+        <span>MINEXA Command Center v2.4 • Developed for Underground Safety &amp; Emergency Response</span>
+      </div>
+      <div class="footer-right">
+        <span>MQTT Broker: <code>mosquitto.minexa.local</code></span>
+        <span>•</span>
+        <span>FastAPI Core: <code>v0.109.0</code></span>
+        <span>•</span>
+        <span>Model: <code>XGBoost Hazard-Engine</code></span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- EMERGENCY EVACUATION MODAL OVERLAY -->
+  <div id="evacuationModal" class="modal-overlay hidden">
+    <div class="modal-content glass-panel evacuation-box">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i data-lucide="siren" class="siren-big-icon"></i>
+          <h2>🚨 EMERGENCY MINE EVACUATION PROTOCOL</h2>
+        </div>
+        <button id="closeModalBtn" class="close-modal-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="evac-alert-box">
+          <p>AN EMERGENCY EVACUATION SIGNAL HAS BEEN DISPATCHED TO ALL UNDERGROUND MINE ZONES (A, B, C, D).</p>
+        </div>
+
+        <div class="evac-steps-grid">
+          <div class="evac-step">
+            <span class="step-num">1</span>
+            <h4>Helmet Buzzers</h4>
+            <p>UWB acoustic alarms activated on all 5 active worker helmets.</p>
+          </div>
+          <div class="evac-step">
+            <span class="step-num">2</span>
+            <h4>Ventilation Override</h4>
+            <p>Auxiliary exhaust fans switched to maximum emergency flow (3.5 m/s).</p>
+          </div>
+          <div class="evac-step">
+            <span class="step-num">3</span>
+            <h4>Rescue Robot</h4>
+            <p>Robot R-01 dispatched to Zone B tunnel intersection for guidance & thermal monitoring.</p>
+          </div>
+        </div>
+
+        <div class="evac-worker-checklist">
+          <h4>Worker Tracking Status:</h4>
+          <ul>
+            <li>🟢 W01 (Zone A) – Moving towards Main Access Shaft</li>
+            <li>🔴 W02 (Zone B) – EVACUATION INSTRUCTED (6m from leak)</li>
+            <li>🟢 W03 (Zone C) – Evacuating via West Air Drift</li>
+            <li>🟢 W04 (Zone D) – Evacuating via Substation Shaft</li>
+            <li>🔴 W05 (Zone B) – EVACUATION INSTRUCTED (4m from leak)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="cancelEvacBtn" class="btn-cancel-evac">STAND DOWN ALARM</button>
+        <button id="confirmEvacBtn" class="btn-confirm-evac">CONFIRM BROADCAST TO DISPATCH</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/app.js"></script>
+  <script>
+    // Initialize Lucide Icons after script loads
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+</html>
